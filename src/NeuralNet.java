@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Dmitry.
  */
@@ -5,10 +8,11 @@
 public class NeuralNet {
     private double inputX;
     private int layer1Count, layer2Count;
-
     private double teachCoeff;
+    private int maxCycleCount;
+    private List<Neuron> neurons = new ArrayList<>();
+    private List<Neuron.FirstHiddenNeuron> neuronsOnTheFirstLayer = new ArrayList<>();
 
-    private int maxCicleCount;
 
     public NeuralNet() {
     }

@@ -1,7 +1,7 @@
 import java.util.List;
 
 /**
- * Created by pharrell.
+ * Created by pharrell :).
  */
 public class Neuron {
 

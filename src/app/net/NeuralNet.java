@@ -1,3 +1,7 @@
+package app.net;
+
+import app.neurons.Neuron;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +27,13 @@ public class NeuralNet {
         neuronsLayer1.clear();
         neuronsLayer2.clear();
 
-        for (int i = 0; i < layer1Count; i++)
+        for (int i = 0; i < layer1Count; i++) {
             neuronsLayer1.get(i).setDegree(neuronsLayer1.size() - i - 1);
+        }
 
-        for (int i = 0; i < layer2Count; i++)
+        for (int i = 0; i < layer2Count; i++) {
             neuronsLayer2.get(i).setDegree(neuronsLayer2.size() - i - 1);
+        }
 
         for (int i = 0; i < layer2Count; i++) {
             neuronsLayer2.get(i).setInputCount(layer1Count);
@@ -39,26 +45,31 @@ public class NeuralNet {
 
     public void setInput(double input) {
         this.inputX = input;
-        for (int i = 0; i < layer1Count; i++)
+        for (int i = 0; i < layer1Count; i++) {
             neuronsLayer1.get(i).setInput(inputX);
+        }
     }
 
     public double calculate() {
         List<Double> layer1Output = new ArrayList<>();
 
-        for (int i = 0; i < neuronsLayer1.size(); i++)
+        for (int i = 0; i < neuronsLayer1.size(); i++) {
             layer1Output.add(neuronsLayer1.get(i).activate());
+        }
 
-        for (int i = 0; i < neuronsLayer2.size(); i++)
+        for (int i = 0; i < neuronsLayer2.size(); i++) {
             neuronsLayer2.get(i).setInput(layer1Output);
+        }
 
         List<Double> layer2Output = new ArrayList<>();
 
-        for (int i = 0; i < neuronsLayer2.size(); i++)
+        for (int i = 0; i < neuronsLayer2.size(); i++) {
             layer2Output.add(neuronsLayer2.get(i).activate());
+        }
 
-        for (int i = 0; i < neuronsLayer2.size(); i++)
+        for (int i = 0; i < neuronsLayer2.size(); i++) {
             layer2Output.add(Math.pow(layer2Output.get(i), neuronsLayer2.get(i).degree));
+        }
 
         output.setInput(layer2Output);
         return output.activate();
@@ -75,17 +86,20 @@ public class NeuralNet {
         this.setInput(inputX);
 
         List<Double> layer1Output = new ArrayList<>();
-        for (int i = 0; i < layer1Count; i++)
+        for (int i = 0; i < layer1Count; i++) {
             layer1Output.add(neuronsLayer1.get(i).activate());
-        for (int i = 0; i < layer2Count; i++)
+        }
+        for (int i = 0; i < layer2Count; i++) {
             neuronsLayer2.get(i).setInput(layer1Output);
+        }
 
         List<Double> layer2Output = new ArrayList<>();
-        for (int i = 0; i < layer2Count; i++)
+        for (int i = 0; i < layer2Count; i++) {
             layer2Output.add(neuronsLayer2.get(i).activate());
-
-        for (int i = 0; i < layer2Count; i++)
+        }
+        for (int i = 0; i < layer2Count; i++) {
             layer2Output.add(i, Math.pow(layer2Output.get(i), neuronsLayer2.get(i).degree));
+        }
 
         output.setInput(layer2Output);
         double result = output.activate();
@@ -104,19 +118,22 @@ public class NeuralNet {
 
         List<Double> layer2OutputWithoutPow = new ArrayList<>();
 
-        for (int i = 0; i < layer2Count; i++)
-            if (neuronsLayer2.get(i).degree != 0)
+        for (int i = 0; i < layer2Count; i++) {
+            if (neuronsLayer2.get(i).degree != 0) {
                 layer2OutputWithoutPow.add(i, Math.pow(layer2OutputWithoutPow.get(i), neuronsLayer2.get(i).degree - 1));
-            else
+            } else {
                 layer2OutputWithoutPow.add(i, Math.pow(layer2OutputWithoutPow.get(i), neuronsLayer2.get(i).degree));
+            }
+        }
 
         List<Double> deltaZ = new ArrayList<>();
-        for (int i = 0; i < layer2Count; i++)
+        for (int i = 0; i < layer2Count; i++) {
             deltaZ.add(teachCoeff * deltaY * neuronsLayer2.get(i).degree * layer2OutputWithoutPow.get(i) *
                     (output.alpha.get(i) /
                             (1 + Math.exp(-output.alpha.get(i))) + output.beta.get(i) / (1 + Math.exp(-output.beta.get(i)))));
+        }
 
-        for (int neuron = 0; neuron < layer2Count; neuron++)
+        for (int neuron = 0; neuron < layer2Count; neuron++) {
             for (int j = 0; j < neuronsLayer2.get(neuron).input.size(); j++) {
                 neuronsLayer2.get(neuron).alpha.add(j, neuronsLayer2.get(neuron).alpha.get(j) + deltaZ.get(neuron) *
                         neuronsLayer2.get(neuron).input.get(j) *
@@ -129,6 +146,7 @@ public class NeuralNet {
                                 (1 + Math.exp(neuronsLayer2.get(neuron).beta.get(j))) /
                                 (1 + Math.exp(neuronsLayer2.get(neuron).beta.get(j)))));
             }
+        }
     }
 
     public void setTeachCoeff(double newTeachCoeff) {

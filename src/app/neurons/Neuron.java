@@ -9,17 +9,17 @@ import java.util.List;
 public class Neuron {
 
     // Векторы с коэффициентами "альфа" и "бета"
-    public List<Double> alpha;
-    public List<Double> beta;
+    private List<Double> alpha;
+    private List<Double> beta;
 
     // Вектор входов
-    public List<Double> input;
+    private List<Double> input;
 
     // Количество входов
-    public int inputCount;
+    private int inputCount;
 
     // Степень
-    public int degree;
+    private int degree;
 
     public Neuron() {
         this.alpha = new ArrayList<>();
@@ -49,10 +49,26 @@ public class Neuron {
         input.clear();
     }
 
+    public int getInputCount() {
+        return inputCount;
+    }
+
+    public List<Double> getAlpha() {
+        return alpha;
+    }
+
+    public List<Double> getBeta() {
+        return beta;
+    }
+
     // Установка входов в нейрон
     public void setInput(List<Double> input) {
         if (input.size() == this.input.size())
             this.input = input;
+    }
+
+    public List<Double> getInput() {
+        return input;
     }
 
     // Установка произвольных весов
@@ -73,13 +89,17 @@ public class Neuron {
         this.degree = degree;
     }
 
+    public int getDegree() {
+        return degree;
+    }
+
     public class FirstHiddenNeuron {
 
         // Вход в нейрон
-        public double input;
+        private double input;
 
         // Степень
-        public int degree;
+        private int degree;
 
         // Конструктор
         public FirstHiddenNeuron() {
@@ -97,9 +117,17 @@ public class Neuron {
             this.input = input;
         }
 
+        public double getInput() {
+            return input;
+        }
+
         // Установка степени
         public void setDegree(int degree) {
             this.degree = degree;
+        }
+
+        public int getDegree() {
+            return degree;
         }
 
     }

@@ -2,6 +2,7 @@ package app.neurons;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by pharrell :).
@@ -75,10 +76,11 @@ public class Neuron {
     public void setRandomWeights(double a, double b) {
         double weight;
         for (int i = 0; i < inputCount; i++) {
-            weight = Math.random() % 1000 * (b - a);
+            Random random = new Random();
+            weight = random.nextDouble() % 1000 * (b - a);
             weight = weight / 1000 + a;
             alpha.add(Math.abs(weight));
-            weight = Math.random() % 1000 * (b - a);
+            weight = random.nextDouble() % 1000 * (b - a);
             weight = weight / 1000 + a;
             beta.add(Math.abs(weight));
         }

@@ -8,7 +8,6 @@ import java.util.Random;
  * Created by pharrell :).
  */
 public class Neuron {
-
     // Векторы с коэффициентами "альфа" и "бета"
     private List<Double> alpha;
     private List<Double> beta;
@@ -131,7 +130,5 @@ public class Neuron {
         public int getDegree() {
             return degree;
         }
-
     }
-
 }

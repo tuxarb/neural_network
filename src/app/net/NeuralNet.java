@@ -28,11 +28,11 @@ public class NeuralNet {
         neuronsLayer2.clear();
 
         for (int i = 0; i < layer1Count; i++) {
-            neuronsLayer1.get(i).setDegree(neuronsLayer1.size() - i - 1);
+            neuronsLayer1.get(i).setDegree(layer1Count - i - 1);
         }
 
         for (int i = 0; i < layer2Count; i++) {
-            neuronsLayer2.get(i).setDegree(neuronsLayer2.size() - i - 1);
+            neuronsLayer2.get(i).setDegree(layer2Count - i - 1);
         }
 
         for (int i = 0; i < layer2Count; i++) {
@@ -53,21 +53,21 @@ public class NeuralNet {
     public double calculate() {
         List<Double> layer1Output = new ArrayList<>();
 
-        for (int i = 0; i < neuronsLayer1.size(); i++) {
+        for (int i = 0; i < layer1Count; i++) {
             layer1Output.add(neuronsLayer1.get(i).activate());
         }
 
-        for (int i = 0; i < neuronsLayer2.size(); i++) {
+        for (int i = 0; i < layer2Count; i++) {
             neuronsLayer2.get(i).setInput(layer1Output);
         }
 
         List<Double> layer2Output = new ArrayList<>();
 
-        for (int i = 0; i < neuronsLayer2.size(); i++) {
+        for (int i = 0; i < layer2Count; i++) {
             layer2Output.add(neuronsLayer2.get(i).activate());
         }
 
-        for (int i = 0; i < neuronsLayer2.size(); i++) {
+        for (int i = 0; i < layer2Count; i++) {
             layer2Output.add(Math.pow(layer2Output.get(i), neuronsLayer2.get(i).getDegree()));
         }
 

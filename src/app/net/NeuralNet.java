@@ -68,7 +68,7 @@ public class NeuralNet {
         }
 
         for (int i = 0; i < neuronsLayer2.size(); i++) {
-            layer2Output.add(Math.pow(layer2Output.get(i), neuronsLayer2.get(i).degree));
+            layer2Output.add(Math.pow(layer2Output.get(i), neuronsLayer2.get(i).getDegree()));
         }
 
         output.setInput(layer2Output);
@@ -98,7 +98,7 @@ public class NeuralNet {
             layer2Output.add(neuronsLayer2.get(i).activate());
         }
         for (int i = 0; i < layer2Count; i++) {
-            layer2Output.add(i, Math.pow(layer2Output.get(i), neuronsLayer2.get(i).degree));
+            layer2Output.add(i, Math.pow(layer2Output.get(i), neuronsLayer2.get(i).getDegree()));
         }
 
         output.setInput(layer2Output);
@@ -106,45 +106,46 @@ public class NeuralNet {
 
         double deltaY = realResult - result;
 
-        for (int i = 0; i < output.inputCount; i++) {
-            output.alpha.add(i, output.alpha.get(i) + teachCoeff * deltaY * output.input.get(i) *
-                    (1 + output.alpha.get(i) - output.alpha.get(i) / (1 + Math.exp(-output.alpha.get(i)))) /
-                    (1 + Math.exp(-output.alpha.get(i))));
+        for (int i = 0; i < output.getInputCount(); i++) {
+            output.getAlpha().add(i, output.getAlpha().get(i) + teachCoeff * deltaY * output.getInput().get(i) *
+                    (1 + output.getAlpha().get(i) - output.getAlpha().get(i) / (1 + Math.exp(-output.getAlpha().get(i)))) /
+                    (1 + Math.exp(-output.getAlpha().get(i))));
 
-            output.beta.add(i, output.beta.get(i) + teachCoeff * deltaY * output.input.get(i) *
-                    (1 - output.beta.get(i) + output.beta.get(i) / (1 + Math.exp(output.beta.get(i)))) /
-                    (1 + Math.exp(output.beta.get(i))));
+            output.getBeta().add(i, output.getBeta().get(i) + teachCoeff * deltaY * output.getInput().get(i) *
+                    (1 - output.getBeta().get(i) + output.getBeta().get(i) / (1 + Math.exp(output.getBeta().get(i)))) /
+                    (1 + Math.exp(output.getBeta().get(i))));
         }
 
         List<Double> layer2OutputWithoutPow = new ArrayList<>();
 
         for (int i = 0; i < layer2Count; i++) {
-            if (neuronsLayer2.get(i).degree != 0) {
-                layer2OutputWithoutPow.add(i, Math.pow(layer2OutputWithoutPow.get(i), neuronsLayer2.get(i).degree - 1));
+            if (neuronsLayer2.get(i).getDegree() != 0) {
+                layer2OutputWithoutPow.add(i, Math.pow(layer2OutputWithoutPow.get(i), neuronsLayer2.get(i).getDegree() - 1));
             } else {
-                layer2OutputWithoutPow.add(i, Math.pow(layer2OutputWithoutPow.get(i), neuronsLayer2.get(i).degree));
+                layer2OutputWithoutPow.add(i, Math.pow(layer2OutputWithoutPow.get(i), neuronsLayer2.get(i).getDegree()));
             }
         }
 
         List<Double> deltaZ = new ArrayList<>();
         for (int i = 0; i < layer2Count; i++) {
-            deltaZ.add(teachCoeff * deltaY * neuronsLayer2.get(i).degree * layer2OutputWithoutPow.get(i) *
-                    (output.alpha.get(i) /
-                            (1 + Math.exp(-output.alpha.get(i))) + output.beta.get(i) / (1 + Math.exp(-output.beta.get(i)))));
+            deltaZ.add(teachCoeff * deltaY * neuronsLayer2.get(i).getDegree() * layer2OutputWithoutPow.get(i) *
+                    (output.getAlpha().get(i) /
+                            (1 + Math.exp(-output.getAlpha().get(i))) + output.getBeta().get(i) /
+                            (1 + Math.exp(-output.getBeta().get(i)))));
         }
 
         for (int neuron = 0; neuron < layer2Count; neuron++) {
-            for (int j = 0; j < neuronsLayer2.get(neuron).input.size(); j++) {
-                neuronsLayer2.get(neuron).alpha.add(j, neuronsLayer2.get(neuron).alpha.get(j) + deltaZ.get(neuron) *
-                        neuronsLayer2.get(neuron).input.get(j) *
-                        (1 + neuronsLayer2.get(neuron).alpha.get(j) - neuronsLayer2.get(neuron).alpha.get(j) /
-                                (1 + Math.exp(-neuronsLayer2.get(neuron).alpha.get(j)))) /
-                        (1 + Math.exp(-neuronsLayer2.get(neuron).alpha.get(j))));
-                neuronsLayer2.get(neuron).beta.add(j, neuronsLayer2.get(neuron).beta.get(j) + deltaZ.get(neuron) *
-                        neuronsLayer2.get(neuron).input.get(j) *
-                        (1 - neuronsLayer2.get(neuron).beta.get(j) + neuronsLayer2.get(neuron).beta.get(j) /
-                                (1 + Math.exp(neuronsLayer2.get(neuron).beta.get(j))) /
-                                (1 + Math.exp(neuronsLayer2.get(neuron).beta.get(j)))));
+            for (int j = 0; j < neuronsLayer2.get(neuron).getInput().size(); j++) {
+                neuronsLayer2.get(neuron).getAlpha().add(j, neuronsLayer2.get(neuron).getAlpha().get(j) + deltaZ.get(neuron) *
+                        neuronsLayer2.get(neuron).getInput().get(j) *
+                        (1 + neuronsLayer2.get(neuron).getAlpha().get(j) - neuronsLayer2.get(neuron).getAlpha().get(j) /
+                                (1 + Math.exp(-neuronsLayer2.get(neuron).getAlpha().get(j)))) /
+                        (1 + Math.exp(-neuronsLayer2.get(neuron).getBeta().get(j))));
+                neuronsLayer2.get(neuron).getBeta().add(j, neuronsLayer2.get(neuron).getBeta().get(j) + deltaZ.get(neuron) *
+                        neuronsLayer2.get(neuron).getInput().get(j) *
+                        (1 - neuronsLayer2.get(neuron).getBeta().get(j) + neuronsLayer2.get(neuron).getBeta().get(j) /
+                                (1 + Math.exp(neuronsLayer2.get(neuron).getBeta().get(j))) /
+                                (1 + Math.exp(neuronsLayer2.get(neuron).getBeta().get(j)))));
             }
         }
     }

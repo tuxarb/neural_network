@@ -1,35 +1,33 @@
 package app;
 
 import app.net.NeuralNet;
+
 import java.util.Random;
 
 public class Source {
 
     public static void main(String[] args) {
         NeuralNet net = new NeuralNet();
-        net.setCount(10, 1);
-        net.setRandomWeights(0.01, 0.1);
-        net.setTeachCoeff(0.0001);
+        net.setCount(10, 1); //инициализация списков нейронов 1-го, 2-го скрытого слоев, а также выходного нейрона и установка степени нейрона и числа входящих ребер для каждого из нейронов
+        net.setRandomWeights(0.01, 0.1); //устанавливаем рандомные веса [0.01, 0.1] для всех ребер между нейронами 1-го и 2-го слоев, а также нейронами 2-го и выходного слоев
+        net.setTeachCoeff(0.0001); //устанавливаем коэффициент обучения
+        net.setNumberIterations(20_000); //количество итераций обучения
 
-        double x;
         Random random = new Random();
-        for (int i = 1; i < 100000; i++) {
-            x = random.nextDouble() % 100000 + 1;
-            x /= 10000;
 
-            // TODO: определиться со структурой точки (x1 x2)
+        for (int i = 1; i < net.getNumberIterations(); i++) {
+            double x = random.nextDouble() % 100_000 + 1;
+            x /= 10_000; // x принадлежит [0, 0,0002]
+
             net.teach(x, f(x));
-            net.setInput(x);
-            System.out.println(i + " " + x + " " + net.calculate() + " " + (f(x) - net.calculate()));
+            double result = net.calculate();
+
+            System.out.println(i + " " + x + " " + result + " \t\t" + (f(x) - result));
         }
     }
 
-    public static double f(double x1, double x2) {
-        return 0; // TODO: определить функцию 2-х переменных
-    }
-
-    public static double f(double x) {
-        //return x*x*x + 2*x + 1;
-        return x * x * x * x * x * x * x * x * x + 7 * x * x * x - x + 5;
+    private static double f(double x) {
+        //return Math.pow(x, 3) + 2 * x + 1;
+        return Math.pow(x, 9) + 7 * Math.pow(x, 3) - x + 5;
     }
 }

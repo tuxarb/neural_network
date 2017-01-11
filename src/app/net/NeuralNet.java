@@ -13,19 +13,22 @@ public class NeuralNet {
     private double inputX;
     private int layer1Count, layer2Count;
     private double teachCoeff;
-    private int maxCycleCount;
+    private int numberIterations;
     private List<Neuron> neuronsLayer2;
     private List<Neuron.FirstHiddenNeuron> neuronsLayer1;
     private Neuron output;
 
     public NeuralNet() {
+        neuronsLayer1 = new ArrayList<>();
+        neuronsLayer2 = new ArrayList<>();
+        output = new Neuron();
     }
 
     public void setCount(int layer1Count, int layer2Count) {
         this.layer1Count = layer1Count;
         this.layer2Count = layer2Count;
-        neuronsLayer1.clear();
-        neuronsLayer2.clear();
+        initNeuronsLayer1(layer1Count);
+        initNeuronsLayer2(layer2Count);
 
         for (int i = 0; i < layer1Count; i++) {
             neuronsLayer1.get(i).setDegree(layer1Count - i - 1);
@@ -43,7 +46,19 @@ public class NeuralNet {
         output.setDegree(1);
     }
 
-    public void setInput(double input) {
+    private void initNeuronsLayer1(int size) {
+        for (int i = 0; i < size; i++) {
+            neuronsLayer1.add(new Neuron().new FirstHiddenNeuron());
+        }
+    }
+
+    private void initNeuronsLayer2(int size) {
+        for (int i = 0; i < size; i++) {
+            neuronsLayer2.add(new Neuron());
+        }
+    }
+
+    void setInput(double input) {
         this.inputX = input;
         for (int i = 0; i < layer1Count; i++) {
             neuronsLayer1.get(i).setInput(inputX);
@@ -54,21 +69,19 @@ public class NeuralNet {
         List<Double> layer1Output = new ArrayList<>();
 
         for (int i = 0; i < layer1Count; i++) {
-            layer1Output.add(neuronsLayer1.get(i).activate());
+            layer1Output.add(i, neuronsLayer1.get(i).activate());
         }
 
         for (int i = 0; i < layer2Count; i++) {
             neuronsLayer2.get(i).setInput(layer1Output);
         }
-
         List<Double> layer2Output = new ArrayList<>();
 
         for (int i = 0; i < layer2Count; i++) {
             layer2Output.add(neuronsLayer2.get(i).activate());
         }
-
         for (int i = 0; i < layer2Count; i++) {
-            layer2Output.add(Math.pow(layer2Output.get(i), neuronsLayer2.get(i).getDegree()));
+            layer2Output.add(i, Math.pow(layer2Output.get(i), neuronsLayer2.get(i).getDegree()));
         }
 
         output.setInput(layer2Output);
@@ -83,6 +96,7 @@ public class NeuralNet {
     }
 
     public void teach(double inputX, double realResult) {
+        // устанавливает число x для каждого нейрона 1-го скрытого слоя на входе
         this.setInput(inputX);
 
         List<Double> layer1Output = new ArrayList<>();
@@ -106,46 +120,52 @@ public class NeuralNet {
 
         double deltaY = realResult - result;
 
+        /**
+         * Пересчет весов для ребер между 2-ым скрытым и выходным слоями
+         */
+        List<Double> alpha = output.getAlpha();
+        List<Double> beta = output.getBeta();
+
         for (int i = 0; i < output.getInputCount(); i++) {
-            output.getAlpha().add(i, output.getAlpha().get(i) + teachCoeff * deltaY * output.getInput().get(i) *
-                    (1 + output.getAlpha().get(i) - output.getAlpha().get(i) / (1 + Math.exp(-output.getAlpha().get(i)))) /
-                    (1 + Math.exp(-output.getAlpha().get(i))));
+            alpha.add(i, alpha.get(i) + teachCoeff * deltaY * output.getInput().get(i) *
+                    (1 + alpha.get(i) - alpha.get(i) / (1 + Math.exp(-alpha.get(i)))) /
+                    (1 + Math.exp(-alpha.get(i))));
 
-            output.getBeta().add(i, output.getBeta().get(i) + teachCoeff * deltaY * output.getInput().get(i) *
-                    (1 - output.getBeta().get(i) + output.getBeta().get(i) / (1 + Math.exp(output.getBeta().get(i)))) /
-                    (1 + Math.exp(output.getBeta().get(i))));
+            beta.add(i, beta.get(i) + teachCoeff * deltaY * output.getInput().get(i) *
+                    (1 - beta.get(i) + beta.get(i) / (1 + Math.exp(beta.get(i)))) /
+                    (1 + Math.exp(beta.get(i))));
         }
-
         List<Double> layer2OutputWithoutPow = new ArrayList<>();
 
         for (int i = 0; i < layer2Count; i++) {
             if (neuronsLayer2.get(i).getDegree() != 0) {
-                layer2OutputWithoutPow.add(i, Math.pow(layer2OutputWithoutPow.get(i), neuronsLayer2.get(i).getDegree() - 1));
+                layer2OutputWithoutPow.add(Math.pow(layer2Output.get(i), neuronsLayer2.get(i).getDegree() - 1));
             } else {
-                layer2OutputWithoutPow.add(i, Math.pow(layer2OutputWithoutPow.get(i), neuronsLayer2.get(i).getDegree()));
+                layer2OutputWithoutPow.add(Math.pow(layer2Output.get(i), neuronsLayer2.get(i).getDegree()));
             }
         }
-
         List<Double> deltaZ = new ArrayList<>();
         for (int i = 0; i < layer2Count; i++) {
             deltaZ.add(teachCoeff * deltaY * neuronsLayer2.get(i).getDegree() * layer2OutputWithoutPow.get(i) *
-                    (output.getAlpha().get(i) /
-                            (1 + Math.exp(-output.getAlpha().get(i))) + output.getBeta().get(i) /
-                            (1 + Math.exp(-output.getBeta().get(i)))));
+                    (alpha.get(i) / (1 + Math.exp(-alpha.get(i))) +
+                            beta.get(i) / (1 + Math.exp(-beta.get(i)))));
         }
 
+        /**
+         * Пересчет весов для ребер между 1-ым и 2-ым скрытыми слоями
+         */
         for (int neuron = 0; neuron < layer2Count; neuron++) {
-            for (int j = 0; j < neuronsLayer2.get(neuron).getInput().size(); j++) {
-                neuronsLayer2.get(neuron).getAlpha().add(j, neuronsLayer2.get(neuron).getAlpha().get(j) + deltaZ.get(neuron) *
-                        neuronsLayer2.get(neuron).getInput().get(j) *
-                        (1 + neuronsLayer2.get(neuron).getAlpha().get(j) - neuronsLayer2.get(neuron).getAlpha().get(j) /
-                                (1 + Math.exp(-neuronsLayer2.get(neuron).getAlpha().get(j)))) /
-                        (1 + Math.exp(-neuronsLayer2.get(neuron).getBeta().get(j))));
-                neuronsLayer2.get(neuron).getBeta().add(j, neuronsLayer2.get(neuron).getBeta().get(j) + deltaZ.get(neuron) *
-                        neuronsLayer2.get(neuron).getInput().get(j) *
-                        (1 - neuronsLayer2.get(neuron).getBeta().get(j) + neuronsLayer2.get(neuron).getBeta().get(j) /
-                                (1 + Math.exp(neuronsLayer2.get(neuron).getBeta().get(j))) /
-                                (1 + Math.exp(neuronsLayer2.get(neuron).getBeta().get(j)))));
+            Neuron neuronLayer2 = neuronsLayer2.get(neuron);
+            alpha = neuronLayer2.getAlpha();
+            beta = neuronLayer2.getBeta();
+            for (int j = 0; j < neuronLayer2.getInput().size(); j++) {
+                alpha.add(j, alpha.get(j) + deltaZ.get(neuron) * neuronLayer2.getInput().get(j) *
+                        (1 + alpha.get(j) - alpha.get(j) / (1 + Math.exp(-alpha.get(j)))) /
+                        (1 + Math.exp(-alpha.get(j))));
+
+                beta.add(j, beta.get(j) + deltaZ.get(neuron) * neuronLayer2.getInput().get(j) *
+                        (1 - beta.get(j) + beta.get(j) / (1 + Math.exp(beta.get(j))) /
+                                (1 + Math.exp(beta.get(j)))));
             }
         }
     }
@@ -154,63 +174,11 @@ public class NeuralNet {
         this.teachCoeff = newTeachCoeff;
     }
 
-    public double getInputX() {
-        return inputX;
+    public void setNumberIterations(int numberIterations) {
+        this.numberIterations = numberIterations;
     }
 
-    public void setInputX(double inputX) {
-        this.inputX = inputX;
-    }
-
-    public Neuron getOutput() {
-        return output;
-    }
-
-    public void setOutput(Neuron output) {
-        this.output = output;
-    }
-
-    public int getLayer1Count() {
-        return layer1Count;
-    }
-
-    public void setLayer1Count(int layer1Count) {
-        this.layer1Count = layer1Count;
-    }
-
-    public int getLayer2Count() {
-        return layer2Count;
-    }
-
-    public void setLayer2Count(int layer2Count) {
-        this.layer2Count = layer2Count;
-    }
-
-    public double getTeachCoeff() {
-        return teachCoeff;
-    }
-
-    public int getMaxCycleCount() {
-        return maxCycleCount;
-    }
-
-    public void setMaxCycleCount(int maxCycleCount) {
-        this.maxCycleCount = maxCycleCount;
-    }
-
-    public List<Neuron> getNeuronsLayer2() {
-        return neuronsLayer2;
-    }
-
-    public void setNeuronsLayer2(List<Neuron> neuronsLayer2) {
-        this.neuronsLayer2 = neuronsLayer2;
-    }
-
-    public List<Neuron.FirstHiddenNeuron> getNeuronsLayer1() {
-        return neuronsLayer1;
-    }
-
-    public void setNeuronsLayer1(List<Neuron.FirstHiddenNeuron> neuronsLayer1) {
-        this.neuronsLayer1 = neuronsLayer1;
+    public int getNumberIterations() {
+        return numberIterations;
     }
 }

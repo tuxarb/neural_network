@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Created by pharrell :).
+ * Created by pharrell.
  */
 public class Neuron {
     // Векторы с коэффициентами "альфа" и "бета"
     private List<Double> alpha;
     private List<Double> beta;
 
-    // Вектор входов
+    // Вектор входов нейронов 1-го скрытого слоя для 2-го скрытого и вектор входов нейронов 2-го скрытого слоя для нейрона выходного слоя
     private List<Double> input;
 
     // Количество входов
@@ -37,11 +37,10 @@ public class Neuron {
                     alpha.get(i) / (1 + Math.exp(-alpha.get(i))) +
                             beta.get(i) / (1 + Math.exp(beta.get(i)))
             );
-
         return sum;
     }
 
-    // Установка количества входов
+    // Установка количества нейронов на входе для каждого нейрона
     public void setInputCount(int inputCount) {
         this.inputCount = inputCount;
         alpha.clear();
@@ -61,27 +60,25 @@ public class Neuron {
         return beta;
     }
 
-    // Установка входов в нейрон
+    // Установка списка нейронов на входе в каждый нейрон 2-го скрытого и выходного слоев
     public void setInput(List<Double> input) {
-        if (input.size() == this.input.size())
-            this.input = input;
+        this.input = input;
     }
 
     public List<Double> getInput() {
         return input;
     }
 
-    // Установка произвольных весов
     public void setRandomWeights(double a, double b) {
         double weight;
         for (int i = 0; i < inputCount; i++) {
             Random random = new Random();
             weight = random.nextDouble() % 1000 * (b - a);
             weight = weight / 1000 + a;
-            alpha.add(Math.abs(weight));
+            alpha.add(i, Math.abs(weight));
             weight = random.nextDouble() % 1000 * (b - a);
             weight = weight / 1000 + a;
-            beta.add(Math.abs(weight));
+            beta.add(i, Math.abs(weight));
         }
     }
 
@@ -118,17 +115,9 @@ public class Neuron {
             this.input = input;
         }
 
-        public double getInput() {
-            return input;
-        }
-
         // Установка степени
         public void setDegree(int degree) {
             this.degree = degree;
-        }
-
-        public int getDegree() {
-            return degree;
         }
     }
 }

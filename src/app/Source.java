@@ -30,4 +30,16 @@ public class Source {
         //return Math.pow(x, 3) + 2 * x + 1;
         return Math.pow(x, 9) + 7 * Math.pow(x, 3) - x + 5;
     }
+
+    private static double f(double x1, double x2) {
+        return f1(x1) + f2(x2);
+    }
+
+    private static double f1(double x) {
+        return 0;
+    }
+
+    private static double f2(double x) {
+        return 0;
+    }
 }

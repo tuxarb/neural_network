@@ -13,7 +13,7 @@ public class NeuralNet {
     private double inputX;
     private int layer1Count, layer2Count;
     private double teachCoeff;
-    private int numberIterations;
+    public static int numberIterations;
     private List<Neuron> neuronsLayer2;
     private List<Neuron.FirstHiddenNeuron> neuronsLayer1;
     private Neuron output;
@@ -172,13 +172,5 @@ public class NeuralNet {
 
     public void setTeachCoeff(double newTeachCoeff) {
         this.teachCoeff = newTeachCoeff;
-    }
-
-    public void setNumberIterations(int numberIterations) {
-        this.numberIterations = numberIterations;
-    }
-
-    public int getNumberIterations() {
-        return numberIterations;
     }
 }

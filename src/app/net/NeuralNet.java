@@ -10,7 +10,6 @@ import java.util.List;
  */
 
 public class NeuralNet {
-    private double inputX;
     private int layer1Count, layer2Count;
     private double teachCoeff;
     public static int numberIterations;
@@ -24,6 +23,9 @@ public class NeuralNet {
         output = new Neuron();
     }
 
+    /**
+     * Инициализация сети
+     */
     public void setCount(int layer1Count, int layer2Count) {
         this.layer1Count = layer1Count;
         this.layer2Count = layer2Count;
@@ -58,13 +60,18 @@ public class NeuralNet {
         }
     }
 
-    void setInput(double input) {
-        this.inputX = input;
+    /**
+     * Установить в качестве входных чисел input1 и input2 для каждого нейрона первого скрытого слоя
+     */
+    public void setInput(double input1, double input2) {
         for (int i = 0; i < layer1Count; i++) {
-            neuronsLayer1.get(i).setInput(inputX);
+            neuronsLayer1.get(i).setInput(input1, input2);
         }
     }
 
+    /**
+     * Вычислить результат на выходе сети
+     */
     public double calculate() {
         List<Double> layer1Output = new ArrayList<>();
 
@@ -88,6 +95,9 @@ public class NeuralNet {
         return output.activate();
     }
 
+    /**
+     * Заполнение случайными числами весов между 1-ым и 2-ым скрытыми слоями и 2-ым скрытым и выходным слоями
+     */
     public void setRandomWeights(double a, double b) {
         for (int i = 0; i < layer2Count; i++)
             neuronsLayer2.get(i).setRandomWeights(a, b);
@@ -95,9 +105,12 @@ public class NeuralNet {
         output.setRandomWeights(a, b);
     }
 
-    public void teach(double inputX, double realResult) {
-        // устанавливает число x для каждого нейрона 1-го скрытого слоя на входе
-        this.setInput(inputX);
+    /**
+     * Обучение сети
+     */
+    public void teach(double inputX1, double inputX2, double realResult) {
+        // устанавливает числа x1 и x2 для каждого нейрона 1-го скрытого слоя на входе
+        this.setInput(inputX1, inputX2);
 
         List<Double> layer1Output = new ArrayList<>();
         for (int i = 0; i < layer1Count; i++) {
@@ -121,17 +134,17 @@ public class NeuralNet {
         double deltaY = realResult - result;
 
         /**
-         * Пересчет весов для ребер между 2-ым скрытым и выходным слоями
+         * Пересчет весов для ребер между нейронами 2-ого скрытого и выходным слоями
          */
         List<Double> alpha = output.getAlpha();
         List<Double> beta = output.getBeta();
 
         for (int i = 0; i < output.getInputCount(); i++) {
-            alpha.add(i, alpha.get(i) + teachCoeff * deltaY * output.getInput().get(i) *
+            alpha.set(i, alpha.get(i) + teachCoeff * deltaY * output.getInput().get(i) *
                     (1 + alpha.get(i) - alpha.get(i) / (1 + Math.exp(-alpha.get(i)))) /
                     (1 + Math.exp(-alpha.get(i))));
 
-            beta.add(i, beta.get(i) + teachCoeff * deltaY * output.getInput().get(i) *
+            beta.set(i, beta.get(i) + teachCoeff * deltaY * output.getInput().get(i) *
                     (1 - beta.get(i) + beta.get(i) / (1 + Math.exp(beta.get(i)))) /
                     (1 + Math.exp(beta.get(i))));
         }
@@ -159,11 +172,11 @@ public class NeuralNet {
             alpha = neuronLayer2.getAlpha();
             beta = neuronLayer2.getBeta();
             for (int j = 0; j < neuronLayer2.getInput().size(); j++) {
-                alpha.add(j, alpha.get(j) + deltaZ.get(neuron) * neuronLayer2.getInput().get(j) *
+                alpha.set(j, alpha.get(j) + deltaZ.get(neuron) * neuronLayer2.getInput().get(j) *
                         (1 + alpha.get(j) - alpha.get(j) / (1 + Math.exp(-alpha.get(j)))) /
                         (1 + Math.exp(-alpha.get(j))));
 
-                beta.add(j, beta.get(j) + deltaZ.get(neuron) * neuronLayer2.getInput().get(j) *
+                beta.set(j, beta.get(j) + deltaZ.get(neuron) * neuronLayer2.getInput().get(j) *
                         (1 - beta.get(j) + beta.get(j) / (1 + Math.exp(beta.get(j))) /
                                 (1 + Math.exp(beta.get(j)))));
             }
@@ -172,5 +185,17 @@ public class NeuralNet {
 
     public void setTeachCoeff(double newTeachCoeff) {
         this.teachCoeff = newTeachCoeff;
+    }
+
+    public List<Neuron> getNeuronsLayer2() {
+        return neuronsLayer2;
+    }
+
+    public List<Neuron.FirstHiddenNeuron> getNeuronsLayer1() {
+        return neuronsLayer1;
+    }
+
+    public Neuron getOutput() {
+        return output;
     }
 }

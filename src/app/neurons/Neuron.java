@@ -1,8 +1,10 @@
 package app.neurons;
 
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
+import static app.Source.RANDOM;
 
 /**
  * Created by pharrell.
@@ -32,20 +34,18 @@ public class Neuron {
     public double activate() {
         double sum = 0;
 
-        for (int i = 0; i < inputCount; i++)
+        for (int i = 0; i < inputCount; i++) {
             sum += input.get(i) * (
                     alpha.get(i) / (1 + Math.exp(-alpha.get(i))) +
                             beta.get(i) / (1 + Math.exp(beta.get(i)))
             );
+        }
         return sum;
     }
 
     // Установка количества нейронов на входе для каждого нейрона
     public void setInputCount(int inputCount) {
         this.inputCount = inputCount;
-        alpha.clear();
-        beta.clear();
-        input.clear();
     }
 
     public int getInputCount() {
@@ -60,6 +60,14 @@ public class Neuron {
         return beta;
     }
 
+    public void setAlpha(List<Double> alpha) {
+        this.alpha = alpha;
+    }
+
+    public void setBeta(List<Double> beta) {
+        this.beta = beta;
+    }
+
     // Установка списка нейронов на входе в каждый нейрон 2-го скрытого и выходного слоев
     public void setInput(List<Double> input) {
         this.input = input;
@@ -70,16 +78,15 @@ public class Neuron {
     }
 
     public void setRandomWeights(double a, double b) {
-        double weight;
         for (int i = 0; i < inputCount; i++) {
-            Random random = new Random();
-            weight = random.nextDouble() % 1000 * (b - a);
-            weight = weight / 1000 + a;
-            alpha.add(i, Math.abs(weight));
-            weight = random.nextDouble() % 1000 * (b - a);
-            weight = weight / 1000 + a;
-            beta.add(i, Math.abs(weight));
+            alpha.add(-Math.abs(getWeight(a, b)));
+            beta.add(Math.abs(getWeight(a, b)));
         }
+    }
+
+    private double getWeight(double a, double b){
+        double weight = RANDOM.nextDouble() % 1000 * (b - a);
+        return weight / 1000 + a;
     }
 
     // Установка степени
@@ -93,26 +100,29 @@ public class Neuron {
 
     public class FirstHiddenNeuron {
 
-        // Вход в нейрон
-        private double input;
+        // Входы в нейрон
+        private double input1;
+        private double input2;
 
         // Степень
         private int degree;
 
         // Конструктор
         public FirstHiddenNeuron() {
-            this.input = 1;
+            this.input1 = 1;
+            this.input2 = 1;
             this.degree = 0;
         }
 
         // Активация нейрона
         public double activate() {
-            return Math.pow(input, degree);
+            return Math.pow(input1 * input2, degree);
         }
 
-        // Установка входа
-        public void setInput(double input) {
-            this.input = input;
+        // Установка входа (x1 и x2)
+        public void setInput(double input1, double input2) {
+            this.input1 = input1;
+            this.input2 = input2;
         }
 
         // Установка степени

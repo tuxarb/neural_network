@@ -34,16 +34,16 @@ public class Source {
             System.out.println("2. Проверка");
             System.out.print("Введите: ");
 
-            int action = SCANNER.nextInt();
+            String action = SCANNER.next();
             switch (action) {
-                case 1:
+                case "1":
                     teach();
                     break;
-                case 2:
+                case "2":
                     check();
                     break;
                 default:
-                    System.out.println("Повторите ввод снова!");
+                    System.out.println("Неверный ввод. Попробуйте снова!");
                     break;
             }
             System.out.println();
